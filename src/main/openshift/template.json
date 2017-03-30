@@ -215,7 +215,8 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}"
+                    "application": "${APPLICATION_NAME}",
+                    "build": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -236,7 +237,6 @@
                 "strategy": {
                     "type": "Source",
                     "sourceStrategy": {
-                        "forcePull": true,
                         "from": {
                             "kind": "ImageStreamTag",
                             "namespace": "${IMAGE_STREAM_NAMESPACE}",
@@ -261,13 +261,6 @@
                         "generic": {
                             "secret": "${GENERIC_WEBHOOK_SECRET}"
                         }
-                    },
-                    {
-                        "type": "ImageChange",
-                        "imageChange": {}
-                    },
-                    {
-                        "type": "ConfigChange"
                     }
                 ]
             }
