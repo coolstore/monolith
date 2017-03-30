@@ -276,7 +276,15 @@
             },
             "spec": {
                 "strategy": {
-                    "type": "Recreate"
+                    "type": "Rolling",
+                    "rollingParams": {
+                        "updatePeriodSeconds": 1,
+                        "intervalSeconds": 1,
+                        "timeoutSeconds": 600,
+                        "maxUnavailable": "25%",
+                        "maxSurge": "25%"
+                    },
+                    "resources": {}
                 },
                 "triggers": [{
                         "type": "ImageChange",
@@ -346,13 +354,15 @@
                                 }
                             },
                             "readinessProbe": {
-                                "exec": {
-                                    "command": [
-                                        "/bin/bash",
-                                        "-c",
-                                        "/opt/eap/bin/readinessProbe.sh"
-                                    ]
-                                }
+                                "httpGet": {
+                                    "path": "/health.jsp",
+                                    "port": 8080,
+                                    "scheme": "HTTP"
+                                },
+                                "timeoutSeconds": 1,
+                                "periodSeconds": 20,
+                                "successThreshold": 1,
+                                "failureThreshold": 5
                             },
                             "ports": [{
                                     "name": "jolokia",
@@ -660,7 +670,7 @@
                         "/bin/sh",
                         "-i",
                         "-c",
-                        "psql -h $DB_SERVER -U $DB_USERNAME -q -d $DB_DATABASE -f /tmp/db-mig-scripts/migrate.sql"
+                        "sleep 10 && psql -h $DB_SERVER -U $DB_USERNAME -q -d $DB_DATABASE -f /tmp/db-mig-scripts/migrate.sql"
                     ],
                     "env": [{
                             "name": "DB_SERVER",
