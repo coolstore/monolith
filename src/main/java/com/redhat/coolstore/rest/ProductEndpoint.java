@@ -9,13 +9,13 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import com.redhat.coolstore.model.Product;
-import com.redhat.coolstore.service.CatalogService;
+import com.redhat.coolstore.service.ProductService;
 
 @RequestScoped
 @Path("/products")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class CatalogEndpoint implements Serializable {
+public class ProductEndpoint implements Serializable {
 
     /**
      *
@@ -23,13 +23,19 @@ public class CatalogEndpoint implements Serializable {
     private static final long serialVersionUID = -7227732980791688773L;
 
     @Inject
-    private CatalogService catalogService;
+    private ProductService pm;
 
 
     @GET
     @Path("/")
     public List<Product> listAll() {
-        return catalogService.getProducts();
+        return pm.getProducts();
+    }
+
+    @GET
+    @Path("/{itemId}")
+    public Product getCart(@PathParam("itemId") String itemId) {
+        return pm.getProductByItemId(itemId);
     }
 
 }

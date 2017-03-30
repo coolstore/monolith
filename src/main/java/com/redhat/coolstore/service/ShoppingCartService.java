@@ -17,7 +17,7 @@ public class ShoppingCartService {
     Logger log;
 
     @Inject
-    CatalogService cs;
+    ProductService productServices;
 
     @Inject
 	ShippingService ss;
@@ -92,7 +92,7 @@ public class ShoppingCartService {
 	}
 
 	public Product getProduct(String itemId) {
-        return cs.getProductByItemId(itemId);
+        return productServices.getProductByItemId(itemId);
 	}
 
 }

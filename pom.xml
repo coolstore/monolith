@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project 
+	xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.redhat.coolstore</groupId>
 	<artifactId>monolith</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>monolith</name>
-
 	<repositories>
 		<repository>
 			<id>jboss-maven-repository</id>
@@ -16,15 +16,28 @@
 			<layout>default</layout>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 			</releases>
 			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>apache-maven-repository</id>
+			<name>Apache Maven Repository</name>
+			<url>http://repo.maven.apache.org/maven2/</url>
+			<layout>default</layout>
+			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
 			</snapshots>
 		</repository>
 	</repositories>
-
 	<pluginRepositories>
 		<pluginRepository>
 			<id>jboss-maven-repository</id>
@@ -33,26 +46,38 @@
 			<layout>default</layout>
 			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 			</releases>
 			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>apache-maven-repository</id>
+			<name>Apache Maven Repository</name>
+			<url>http://repo.maven.apache.org/maven2/</url>
+			<layout>default</layout>
+			<releases>
 				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMdd'T'HHmmss</maven.build.timestamp.format>
 		<hystrix.version>1.5.1</hystrix.version>
 		<project.encoding>UTF-8</project.encoding>
-		<!-- configurem m2e facets -->  
+		<!-- configurem m2e facets -->
 		<m2e.jaxrs.activation>false</m2e.jaxrs.activation>
 		<m2e.jpa.activation>false</m2e.jpa.activation>
 		<m2e.jsf.activation>false</m2e.jsf.activation>
 	</properties>
-
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
@@ -80,21 +105,14 @@
 				</configuration>
 			</plugin>
 			<plugin>
-                <groupId>org.wildfly.plugins</groupId>
-                <artifactId>wildfly-maven-plugin</artifactId>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-maven-plugin</artifactId>
 				<version>1.1.0.Final</version>
-            </plugin>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
 		<profile>
-			<!-- When built in OpenShift the 'openshift' profile will be 
-				used when invoking mvn. -->
-			<!-- Use this profile for any OpenShift specific customization 
-				your app will need. -->
-			<!-- By default that is to put the resulting archive into the 
-				'deployments' folder. -->
-			<!-- http://maven.apache.org/guides/mini/guide-building-for-different-environments.html -->
 			<id>openshift</id>
 			<build>
 				<plugins>
@@ -117,7 +135,6 @@
 			</build>
 		</profile>
 	</profiles>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -129,7 +146,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>javax</groupId>

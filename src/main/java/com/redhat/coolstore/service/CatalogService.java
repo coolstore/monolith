@@ -2,7 +2,6 @@ package com.redhat.coolstore.service;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -19,7 +18,6 @@ import com.redhat.coolstore.model.*;
 @Stateless
 public class CatalogService {
 
-    
     @Inject
     Logger log;
 
@@ -29,19 +27,16 @@ public class CatalogService {
 	public CatalogService() {
 	}
 
-	public List<Product> getProducts() {
+	public List<CatalogItemEntity> getCatalogItems() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<ProductEntity> criteria = cb.createQuery(ProductEntity.class);
-        Root<ProductEntity> member = criteria.from(ProductEntity.class);
+        CriteriaQuery<CatalogItemEntity> criteria = cb.createQuery(CatalogItemEntity.class);
+        Root<CatalogItemEntity> member = criteria.from(CatalogItemEntity.class);
         criteria.select(member);
-        return em.createQuery(criteria).getResultList().stream().map( entity -> new Product(entity) ).collect(Collectors.toList());
+        return em.createQuery(criteria).getResultList();
     }
 
-    public Product getProductByItemId(String itemId) {
-        ProductEntity entity = em.find(ProductEntity.class, itemId);
-        if(entity==null)
-            return null;   
-        return new Product(entity);
+    public CatalogItemEntity getCatalogItemById(String itemId) {
+       return em.find(CatalogItemEntity.class, itemId);
     }
 
 }

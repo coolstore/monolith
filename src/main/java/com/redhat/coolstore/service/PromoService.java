@@ -23,7 +23,7 @@ public class PromoService implements Serializable {
 
 	public PromoService() {
 						
-		promotionSet = new HashSet<Promotion>();
+		promotionSet = new HashSet<>();
 		
 		promotionSet.add(new Promotion("329299", .25));
 						
@@ -80,11 +80,11 @@ public class PromoService implements Serializable {
 				
 		if ( promotionSet == null ) {
 			
-			promotionSet = new HashSet<Promotion>();
+			promotionSet = new HashSet<>();
 			
 		}
 		
-		return new HashSet<Promotion>(promotionSet);
+		return new HashSet<>(promotionSet);
 		
 	}
 	
@@ -92,11 +92,11 @@ public class PromoService implements Serializable {
 		
 		if ( promotionSet != null ) {
 		
-			this.promotionSet = new HashSet<Promotion>(promotionSet);
+			this.promotionSet = new HashSet<>(promotionSet);
 			
 		} else {
 			
-			this.promotionSet = new HashSet<Promotion>();
+			this.promotionSet = new HashSet<>();
 			
 		}
 						

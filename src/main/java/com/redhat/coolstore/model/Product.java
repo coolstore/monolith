@@ -1,110 +1,34 @@
 package com.redhat.coolstore.model;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
+/**
+ * Created by tqvarnst on 2017-03-30.
+ */
+public interface Product {
+    String getItemId();
 
+    void setItemId(String itemId);
 
-@XmlRootElement
-public class Product implements Serializable {
+    String getName();
 
-	private static final long serialVersionUID = -123423423141232L;
-	
-	@XmlElement
-	private String itemId;
-	
-	@XmlElement
-	private String name;
-	
-	@XmlElement
-	private String desc;
-	
-	@XmlElement
-	private double price;
+    void setName(String name);
 
-	@XmlElement
-    private String location;
+    String getDesc();
 
+    void setDesc(String desc);
 
-    @XmlElement
-    private int quantity;
+    double getPrice();
 
-    @XmlElement
-    private String link;
+    void setPrice(double price);
 
+    String getLocation();
 
-	public Product() {
+    void setLocation(String location);
 
-	}
+    int getQuantity();
 
-	public Product(ProductEntity prod) {
-		super();
-		this.itemId = prod.getItemId();
-		this.name = prod.getName();
-		this.desc = prod.getDesc();
-		this.price = prod.getPrice();
-		Inventory invent = prod.getInventory();
-		this.location = invent.getLocation();
-		this.link = invent.getLink();
-		this.quantity = invent.getQuantity();
+    void setQuantity(int quantity);
 
-	}
-	public String getItemId() {
-		return itemId;
-	}
-	public void setItemId(String itemId) {
-		this.itemId = itemId;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getDesc() {
-		return desc;
-	}
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-	public double getPrice() {
-		return price;
-	}
-	public void setPrice(double price) {
-		this.price = price;
-	}
+    String getLink();
 
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
-	public String getLink() {
-		return link;
-	}
-
-	public void setLink(String link) {
-		this.link = link;
-	}
-
-
-	@Override
-	public String toString() {
-		return "Product [itemId=" + itemId + ", name=" + name + ", desc="
-				+ desc + ", price=" + price + ", quantity=" + quantity+ "]";
-	}
-
-
-
+    void setLink(String link);
 }
