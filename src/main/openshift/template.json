@@ -523,11 +523,8 @@
             },
             "spec": {
                 "strategy": {
-                    "type": "Rolling",
-                    "rollingParams": {
-                        "intervalSeconds": "1",
-                        "maxSurge": "25%",
-                        "maxUnavailable": "25%",
+                    "type": "Recreate",
+                    "recreateParams": {
                         "post": {
                             "execNewPod" : {
                                 "containerName": "${APPLICATION_NAME}-postgresql",
