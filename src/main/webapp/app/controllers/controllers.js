@@ -5,7 +5,6 @@ angular.module('app')
     .controller("HomeController",
         ['$scope', '$http', '$filter', 'Notifications', 'cart', 'catalog', 'Auth',
             function ($scope, $http, $filter, Notifications, cart, catalog, $auth) {
-                console.log("HOME CONTROLLER")
                 $scope.products = [];
                 $scope.addToCart = function (item) {
                     cart.addToCart(item.product, parseInt(item.quantity)).then(function (data) {
