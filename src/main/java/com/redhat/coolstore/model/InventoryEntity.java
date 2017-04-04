@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Entity
 @XmlRootElement
-@Table(name = "PRODUCT_INVENTORY", uniqueConstraints = @UniqueConstraint(columnNames = "itemId"))
+@Table(name = "INVENTORY", uniqueConstraints = @UniqueConstraint(columnNames = "itemId"))
 public class InventoryEntity implements Serializable {
 
 
