@@ -364,7 +364,8 @@
                                     "protocol": "TCP"
                                 }
                             ],
-                            "env": [{
+                            "env": [
+                                {
                                     "name": "DB_SERVICE_PREFIX_MAPPING",
                                     "value": "coolstore-dev-postgresql=DB"
                                 },
@@ -612,6 +613,40 @@
             ]
         },
         {
+            "kind": "RoleBinding",
+            "apiVersion": "v1",
+            "groupNames": null,
+            "metadata": {
+                "name": "coolstore-serviceaccount_view"
+            },
+            "roleRef": {
+                "name": "view"
+            },
+            "subjects": [{
+                "kind": "ServiceAccount",
+                "name": "coolstore-serviceaccount"
+            }]
+        },
+        {
+            "kind": "RoleBinding",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "ci_admin"
+            },
+            "groupNames": [
+                "system:serviceaccounts:ci"
+            ],
+            "subjects": [
+                {
+                    "kind": "SystemGroup",
+                    "name": "system:serviceaccounts:ci"
+                }
+            ],
+            "roleRef": {
+                "name": "admin"
+            }
+        },
+        {
             "kind": "Secret",
             "apiVersion": "v1",
             "metadata": {
@@ -627,3 +662,5 @@
         }
     ]
 }
+
+
