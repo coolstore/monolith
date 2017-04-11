@@ -14,21 +14,20 @@ import static com.redhat.coolstore.utils.Transformers.toProduct;
 @Stateless
 public class ProductService {
 
-
     @Inject
     CatalogService cm;
 
-	public ProductService() {
-	}
+    public ProductService() {
+    }
 
-	public List<Product> getProducts() {
-        return cm.getCatalogItems().stream().map( entity -> toProduct(entity) ).collect(Collectors.toList());
+    public List<Product> getProducts() {
+        return cm.getCatalogItems().stream().map(entity -> toProduct(entity)).collect(Collectors.toList());
     }
 
     public Product getProductByItemId(String itemId) {
         CatalogItemEntity entity = cm.getCatalogItemById(itemId);
-        if(entity==null)
-            return null;   
+        if (entity == null)
+            return null;
         return Transformers.toProduct(entity);
     }
 

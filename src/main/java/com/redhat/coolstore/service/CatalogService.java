@@ -22,12 +22,12 @@ public class CatalogService {
     Logger log;
 
     @PersistenceContext
-	private EntityManager em;
-    
-	public CatalogService() {
-	}
+    private EntityManager em;
 
-	public List<CatalogItemEntity> getCatalogItems() {
+    public CatalogService() {
+    }
+
+    public List<CatalogItemEntity> getCatalogItems() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<CatalogItemEntity> criteria = cb.createQuery(CatalogItemEntity.class);
         Root<CatalogItemEntity> member = criteria.from(CatalogItemEntity.class);
@@ -36,7 +36,7 @@ public class CatalogService {
     }
 
     public CatalogItemEntity getCatalogItemById(String itemId) {
-       return em.find(CatalogItemEntity.class, itemId);
+        return em.find(CatalogItemEntity.class, itemId);
     }
 
 }
