@@ -1,3 +1,7 @@
+<% 
+request.getSession(true);
+%>
+
 <!doctype html>
 <html lang="en">
 
