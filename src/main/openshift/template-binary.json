@@ -3,16 +3,16 @@
     "apiVersion": "v1",
     "metadata": {
         "annotations": {
-            "description": "Application template Coolstore Monolith using Git source build",
+            "description": "Application template Coolstore Monolith using binary build.",
             "iconClass": "icon-jboss",
             "tags": "eap,postgresql,javaee,java,database,jboss,xpaas",
             "version": "1.0.0",
             "openshift.io/display-name": "Red Hat Demos - Coolstore Monnolith using binary build"
         },
-        "name": "coolstore-monolith-demo"
+        "name": "coolstore-monolith-binary-demo"
     },
     "labels": {
-        "template": "coolstore-monolith-demo"
+        "template": "coolstore-monolith-binary-demo"
     },
     "message": "The resources (build config, deploy config, service, imagestreams, etc) for running the Coolstore Monolith demo has been created in your project. To deploy the application go to your source directoy and build that code using mvn -Popenshift package and then start the build using oc start-build coolstore --from-file=deployments/ROOT.war.",
     "parameters": [
@@ -111,10 +111,8 @@
             },
             "spec": {
                 "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "https://github.com/coolstore/monolith.git"
-                    }
+                    "type": "Binary",
+                    "binary": {}
                 },
                 "strategy": {
                     "type": "Source",
@@ -131,15 +129,7 @@
                         "kind": "ImageStreamTag",
                         "name": "coolstore:latest"
                     }
-                },
-                "triggers": [
-                    {
-                        "type":"ImageChange"
-                    },
-                    {
-                        "type":"ConfigChange"
-                    }
-                ]
+                }
             }
         },
         {
