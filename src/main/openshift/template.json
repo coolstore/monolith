@@ -452,6 +452,12 @@
                                 "containerPort": 5432,
                                 "protocol": "TCP"
                             }],
+     			    "volumeMounts": [
+                                    {
+                                        "mountPath": "/var/lib/pgsql/data",
+                                        "name": "coolstore-postgresql-pvol"
+                                    }
+                            ],
                             "env": [{
                                     "name": "POSTGRESQL_USER",
                                     "value": "coolstore"
@@ -465,7 +471,35 @@
                                     "value": "monolith"
                                 }
                             ] 
-                        }]
+                        }],
+			"volumes": [
+                            {
+                                "name": "coolstore-postgresql-pvol",
+                                "persistentVolumeClaim": {
+                                    "claimName": "coolstore-postgresql-claim"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "coolstore-postgresql-claim",
+                "labels": {
+                    "application": "coolstore"
+                }
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "1Gi"
                     }
                 }
             }
@@ -532,5 +566,3 @@
         }
     ]
 }
-
-
