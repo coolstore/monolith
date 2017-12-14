@@ -160,4 +160,21 @@ angular.module('app')
                 $scope.isActive = function (loc) {
                     return loc === $location.path();
                 }
-            }]);
+            }])
+    .controller("OrdersController",
+        ['orders','$scope',
+            function (orders,$scope) {
+                orders.getOrders().then(function (orders) { $scope.orders = orders; });
+                $scope.isLoggedIn = function () {
+                    return $auth.loggedIn;
+                };
+                $scope.ssoEnabled = function () {
+                    return $auth.ssoEnabled;
+                };
+
+                $scope.login = function () {
+                    $auth.login();
+                };
+            }
+        ]
+    );

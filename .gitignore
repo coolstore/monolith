@@ -25,4 +25,6 @@ nbproject/private/
 build/
 nbbuild/
 nbdist/
-.nb-gradle/
+.nb-gradle
+
+.DS_Store

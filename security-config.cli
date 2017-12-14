@@ -1,0 +1,28 @@
+embed-server --server-config=standalone-full.xml
+
+# Add the JDBC security realm creation
+if (outcome == failed) of /subsystem=elytron/jdbc-realm=coolstore-realm:read-resource
+  /subsystem=elytron/jdbc-realm=coolstore-realm:add(principal-query=[{sql="SELECT PASSWORD FROM USERS WHERE USERNAME = ?", data-source="coolstore-ds", clear-password-mapper={password-index=1}},{sql="SELECT R.NAME, 'Roles' FROM USERS_ROLES UR INNER JOIN ROLES R ON R.ID = UR.ROLE_ID INNER JOIN USERS U ON U.ID = UR.USER_ID WHERE U.USERNAME = ?", data-source="coolstore-ds", attribute-mapping=[{index=1, to=roles}]}])
+end-if
+
+# Add a simple role decoder for the "roles" attribute mapping
+if (outcome == failed) of /subsystem=elytron/simple-role-decoder=from-roles-attribute:read-resource
+  /subsystem=elytron/simple-role-decoder=from-roles-attribute:add(attribute=roles)
+end-if
+
+# Configure the coolstore security domain
+if (outcome == failed) of /subsystem=elytron/security-domain=coolstore-security-domain:read-resource
+  /subsystem=elytron/security-domain=coolstore-security-domain:add(default-realm=coolstore-realm, realms=[{realm=coolstore-realm, role-decoder=from-roles-attribute}], permission-mapper=default-permission-mapper)
+end-if
+
+# Configure the HTTP Authentication Factory
+if (outcome == failed) of /subsystem=elytron/http-authentication-factory=coolstore-http-auth:read-resource
+  /subsystem=elytron/http-authentication-factory=coolstore-http-auth:add(http-server-mechanism-factory=global,security-domain=coolstore-security-domain,mechanism-configurations=[{mechanism-name=BASIC,mechanism-realm-configurations=[{realm-name=RealmUsersRoles}]}])
+end-if
+
+# Configure Undertow's application security domain
+if (outcome == failed) of /subsystem=undertow/application-security-domain=coolstore:read-resource
+  /subsystem=undertow/application-security-domain=coolstore:add(http-authentication-factory=coolstore-http-auth)
+fi
+
+stop-embedded-server

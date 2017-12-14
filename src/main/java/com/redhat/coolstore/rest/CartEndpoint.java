@@ -1,148 +1,173 @@
 package com.redhat.coolstore.rest;
 
-import com.redhat.coolstore.model.Product;
-import com.redhat.coolstore.model.ShoppingCart;
-import com.redhat.coolstore.model.ShoppingCartItem;
-import com.redhat.coolstore.service.ShoppingCartService;
-
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+import javax.jms.JMSContext;
+import javax.jms.JMSDestinationDefinition;
+import javax.jms.JMSDestinationDefinitions;
+import javax.jms.Queue;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.crypto.dsig.Transform;
+
+import com.redhat.coolstore.model.Product;
+import com.redhat.coolstore.model.ShoppingCart;
+import com.redhat.coolstore.model.ShoppingCartItem;
+import com.redhat.coolstore.service.ShoppingCartService;
+import com.redhat.coolstore.utils.Transformers;
+
 @SessionScoped
 @Path("/cart")
+@JMSDestinationDefinitions(
+	value = {
+		@JMSDestinationDefinition(
+			name = "java:/jms/queue/orders",
+			interfaceName = "javax.jms.Queue",
+			destinationName = "ordersQueue"
+		)
+	}
+)
 public class CartEndpoint implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -7227732980791688773L;
+	private static final long serialVersionUID = -7227732980791688773L;
 
-    @Inject
-    private ShoppingCartService shoppingCartService;
+	@Inject
+	private JMSContext context;
 
-    @GET
-    @Path("/{cartId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ShoppingCart getCart(@PathParam("cartId") String cartId) {
+	@Resource(lookup = "java:/jms/queue/orders")
+	private Queue orderQueue;
 
-        return shoppingCartService.getShoppingCart(cartId);
-    }
+	@Inject
+	private ShoppingCartService shoppingCartService;
 
-    @POST
-    @Path("/{cartId}/{itemId}/{quantity}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ShoppingCart add(@PathParam("cartId") String cartId,
-                            @PathParam("itemId") String itemId,
-                            @PathParam("quantity") int quantity) throws Exception {
-        ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
+	@GET
+	@Path("/{cartId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ShoppingCart getCart(@PathParam("cartId") String cartId) {
 
-        Product product = shoppingCartService.getProduct(itemId);
+		return shoppingCartService.getShoppingCart(cartId);
+	}
 
-        ShoppingCartItem sci = new ShoppingCartItem();
-        sci.setProduct(product);
-        sci.setQuantity(quantity);
-        sci.setPrice(product.getPrice());
-        cart.addShoppingCartItem(sci);
+	@POST
+	@Path("/{cartId}/{itemId}/{quantity}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ShoppingCart add(@PathParam("cartId") String cartId,
+							@PathParam("itemId") String itemId,
+							@PathParam("quantity") int quantity) throws Exception {
+		ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
 
-        try {
-            shoppingCartService.priceShoppingCart(cart);
-            cart.setShoppingCartItemList(dedupeCartItems(cart.getShoppingCartItemList()));
-        } catch (Exception ex) {
-            cart.removeShoppingCartItem(sci);
-            throw ex;
-        }
+		Product product = shoppingCartService.getProduct(itemId);
 
-        return cart;
-    }
+		ShoppingCartItem sci = new ShoppingCartItem();
+		sci.setProduct(product);
+		sci.setQuantity(quantity);
+		sci.setPrice(product.getPrice());
+		cart.addShoppingCartItem(sci);
 
-    @POST
-    @Path("/{cartId}/{tmpId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ShoppingCart set(@PathParam("cartId") String cartId,
-                            @PathParam("tmpId") String tmpId) throws Exception {
+		try {
+			shoppingCartService.priceShoppingCart(cart);
+			cart.setShoppingCartItemList(dedupeCartItems(cart.getShoppingCartItemList()));
+		} catch (Exception ex) {
+			cart.removeShoppingCartItem(sci);
+			throw ex;
+		}
 
-        ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
-        ShoppingCart tmpCart = shoppingCartService.getShoppingCart(tmpId);
+		return cart;
+	}
 
-        if (tmpCart != null) {
-            cart.resetShoppingCartItemList();
-            cart.setShoppingCartItemList(tmpCart.getShoppingCartItemList());
-        }
+	@POST
+	@Path("/{cartId}/{tmpId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ShoppingCart set(@PathParam("cartId") String cartId,
+							@PathParam("tmpId") String tmpId) throws Exception {
 
-        try {
-            shoppingCartService.priceShoppingCart(cart);
-            cart.setShoppingCartItemList(dedupeCartItems(cart.getShoppingCartItemList()));
-        } catch (Exception ex) {
-            throw ex;
-        }
+		ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
+		ShoppingCart tmpCart = shoppingCartService.getShoppingCart(tmpId);
 
-        return cart;
-    }
+		if (tmpCart != null) {
+			cart.resetShoppingCartItemList();
+			cart.setShoppingCartItemList(tmpCart.getShoppingCartItemList());
+		}
 
-    @DELETE
-    @Path("/{cartId}/{itemId}/{quantity}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ShoppingCart delete(@PathParam("cartId") String cartId,
-                               @PathParam("itemId") String itemId,
-                               @PathParam("quantity") int quantity) throws Exception {
+		try {
+			shoppingCartService.priceShoppingCart(cart);
+			cart.setShoppingCartItemList(dedupeCartItems(cart.getShoppingCartItemList()));
+		} catch (Exception ex) {
+			throw ex;
+		}
 
-        List<ShoppingCartItem> toRemoveList = new ArrayList<>();
+		return cart;
+	}
 
-        ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
+	@DELETE
+	@Path("/{cartId}/{itemId}/{quantity}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ShoppingCart delete(@PathParam("cartId") String cartId,
+							   @PathParam("itemId") String itemId,
+							   @PathParam("quantity") int quantity) throws Exception {
 
-        cart.getShoppingCartItemList().stream()
-                .filter(sci -> sci.getProduct().getItemId().equals(itemId))
-                .forEach(sci -> {
-                    if (quantity >= sci.getQuantity()) {
-                        toRemoveList.add(sci);
-                    } else {
-                        sci.setQuantity(sci.getQuantity() - quantity);
-                    }
-                });
+		List<ShoppingCartItem> toRemoveList = new ArrayList<>();
 
-        toRemoveList.forEach(cart::removeShoppingCartItem);
+		ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
 
-        shoppingCartService.priceShoppingCart(cart);
-        return cart;
-    }
+		cart.getShoppingCartItemList().stream()
+				.filter(sci -> sci.getProduct().getItemId().equals(itemId))
+				.forEach(sci -> {
+					if (quantity >= sci.getQuantity()) {
+						toRemoveList.add(sci);
+					} else {
+						sci.setQuantity(sci.getQuantity() - quantity);
+					}
+				});
 
-    @POST
-    @Path("/checkout/{cartId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ShoppingCart checkout(@PathParam("cartId") String cartId) {
-        // TODO: register purchase of shoppingCart items by specific user in session
-        ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
-        cart.resetShoppingCartItemList();
-        shoppingCartService.priceShoppingCart(cart);
-        return cart;
-    }
+		toRemoveList.forEach(cart::removeShoppingCartItem);
 
-    private List<ShoppingCartItem> dedupeCartItems(List<ShoppingCartItem> cartItems) {
-        List<ShoppingCartItem> result = new ArrayList<>();
-        Map<String, Integer> quantityMap = new HashMap<>();
-        for (ShoppingCartItem sci : cartItems) {
-            if (quantityMap.containsKey(sci.getProduct().getItemId())) {
-                quantityMap.put(sci.getProduct().getItemId(), quantityMap.get(sci.getProduct().getItemId()) + sci.getQuantity());
-            } else {
-                quantityMap.put(sci.getProduct().getItemId(), sci.getQuantity());
-            }
-        }
+		shoppingCartService.priceShoppingCart(cart);
+		return cart;
+	}
 
-        for (String itemId : quantityMap.keySet()) {
-            Product p = shoppingCartService.getProduct(itemId);
-            ShoppingCartItem newItem = new ShoppingCartItem();
-            newItem.setQuantity(quantityMap.get(itemId));
-            newItem.setPrice(p.getPrice());
-            newItem.setProduct(p);
-            result.add(newItem);
-        }
-        return result;
-    }
+	@POST
+	@Path("/checkout/{cartId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ShoppingCart checkout(@PathParam("cartId") String cartId) {
+		ShoppingCart cart = shoppingCartService.getShoppingCart(cartId);
+		context.createProducer().send(orderQueue, Transformers.shoppingCartToJson(cart));
+		cart.resetShoppingCartItemList();
+		shoppingCartService.priceShoppingCart(cart);
+		return cart;
+	}
+
+	private List<ShoppingCartItem> dedupeCartItems(List<ShoppingCartItem> cartItems) {
+		List<ShoppingCartItem> result = new ArrayList<>();
+		Map<String, Integer> quantityMap = new HashMap<>();
+		for (ShoppingCartItem sci : cartItems) {
+			if (quantityMap.containsKey(sci.getProduct().getItemId())) {
+				quantityMap.put(sci.getProduct().getItemId(), quantityMap.get(sci.getProduct().getItemId()) + sci.getQuantity());
+			} else {
+				quantityMap.put(sci.getProduct().getItemId(), sci.getQuantity());
+			}
+		}
+
+		for (String itemId : quantityMap.keySet()) {
+			Product p = shoppingCartService.getProduct(itemId);
+			ShoppingCartItem newItem = new ShoppingCartItem();
+			newItem.setQuantity(quantityMap.get(itemId));
+			newItem.setPrice(p.getPrice());
+			newItem.setProduct(p);
+			result.add(newItem);
+		}
+		return result;
+	}
 }
