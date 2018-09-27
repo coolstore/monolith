@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# This script retrieves a pre-compiled war file from a location on the Web
+# (Nexus, Jenkins, ...) and deploys it into the JBoss EAP Server.
+#
+# Parameters:
+# - WAR_FILE_URL: the URL of the WAR file to download and install
+#
+# If the WAR_FILE_URL is not given, fallback to the default assemble script
+# so that the regular S2I image still works.
+#
+
+# Exit immediately if command returns non-zero status code
+set -e
+
+# TODO
+DEPLOY_DIR=$WILDFLY_HOME/standalone/deployments
+APP_NAME=ROOT.war
+
+if [ -z "$WAR_FILE_URL" ]; then
+  echo "No 'WAR_FILE_URL' environment variable given, falling back to the default assemble script."
+  exec /usr/local/s2i/assemble
+fi
+
+echo "Deploying artifact found at $WAR_FILE_URL to $DEPLOY_DIR/$APP_NAME"
+ret=$(curl --insecure -L -s -o $DEPLOY_DIR/$APP_NAME -w "%{http_code}" $WAR_FILE_URL)
+if [ "$ret" != "200" ]; then
+  echo "Could not download WAR file. Got a $ret HTTP Status Code."
+  exit 1
+fi
